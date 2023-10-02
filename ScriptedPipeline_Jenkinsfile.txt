@@ -1,0 +1,33 @@
+node('master') 
+{
+  stage('ContinuousDownload') 
+  {
+    git branch: 'main', url: 'https://github.com/devopswithwahab/maven.git'
+  } 
+  stage('ContinuousBuild') 
+  {
+    sh 'mvn package'
+  } 
+  stage('ContinuousDeployment') 
+  {
+    sh 'scp  /home/ubuntu/.jenkins/workspace/DemoPipeline/webapp/target/webapp.war   ubuntu@172.31.26.203:/var/lib/tomcat9/webapps/qaenv.war'
+  }
+  stage('ContinuousTesting') 
+  {
+    git 'https://github.com/devopswithwahab/testing.git'
+    sh 'java -jar  /var/lib/jenkins/workspace/Pipeline/testing.jar'
+  }
+  stage('ContinuousDelivery') 
+  {
+      input message: 'Waiting for approval from DM', submitter: 'Wahab'
+    sh 'scp  /home/ubuntu/.jenkins/workspace/DemoPipeline/webapp/target/webapp.war   ubuntu@172.31.24.2:/var/lib/tomcat9/webapps/prodenv.war'
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+}
